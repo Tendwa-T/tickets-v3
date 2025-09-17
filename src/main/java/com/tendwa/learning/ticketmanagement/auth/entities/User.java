@@ -3,14 +3,13 @@ package com.tendwa.learning.ticketmanagement.auth.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -23,6 +22,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Size(max = 255)
@@ -53,7 +53,7 @@ public class User {
     @NotNull
     @ColumnDefault("1")
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = false;
+    private Boolean isActive = true;
 
     @NotNull
     @ColumnDefault("0")
@@ -62,7 +62,7 @@ public class User {
 
     @NotNull
     @ColumnDefault("(now())")
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @NotNull
@@ -73,10 +73,29 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<UserRole> userRoles = new LinkedHashSet<>();
 
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        User user = (User) o;
+        return getId() != null && Objects.equals(getId(), user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getEmail(), getPasswordHash(), getFirstName(), getLastName(), getPhoneNumber(), getIsActive(), getIsDeleted(), getCreatedAt(), getUpdatedAt(), getUserRoles());
+    }
+
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
+        this.isActive = true;
+        this.isDeleted = false;
     }
 
     @PreUpdate

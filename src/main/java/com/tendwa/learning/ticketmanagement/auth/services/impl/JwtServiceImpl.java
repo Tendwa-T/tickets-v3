@@ -1,4 +1,4 @@
-package com.tendwa.learning.ticketmanagement.auth.services;
+package com.tendwa.learning.ticketmanagement.auth.services.impl;
 
 import com.tendwa.learning.ticketmanagement.auth.entities.Jwt;
 import com.tendwa.learning.ticketmanagement.auth.entities.User;
@@ -11,10 +11,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
-public class JwtService {
+public class JwtServiceImpl {
     private final JwtConfig jwtConfig;
     private final UserRoleRepository userRoleRepository;
 
@@ -27,17 +28,20 @@ public class JwtService {
 
     private Jwt generateToken(User user, long tokenExpiration){
         //Fetch the roles from the user_roles table then append them
-        var userRole = userRoleRepository.findByUser_Id(user.getId());
+        var userRoles = userRoleRepository.findByUser_Id(user.getId());
+
         var claims = Jwts.claims()
                 .subject(user.getId().toString())
                 .add("email", user.getEmail())
-                .add("role", userRole.stream().map(
-                        role -> role.getRole().getName()
-                ).toList())
+                .add("role", userRoles.stream()
+                        .map(userRole -> userRole.getRole().getName())  // extract role names
+                        .collect(Collectors.toList())                   // convert to List<String>
+                )
                 .add("name",  user.getFirstName() + user.getLastName())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + tokenExpiration * 1000))
                 .build();
+
 
         return new Jwt(claims,jwtConfig.getSecretKey());
     }

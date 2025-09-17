@@ -1,5 +1,6 @@
-package com.tendwa.learning.ticketmanagement.auth.services;
+package com.tendwa.learning.ticketmanagement.auth.services.impl;
 
+import com.tendwa.learning.ticketmanagement.auth.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

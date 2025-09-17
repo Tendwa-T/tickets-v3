@@ -1,13 +1,13 @@
 package com.tendwa.learning.ticketmanagement.generic.errorHandling;
 
-import com.tendwa.learning.ticketmanagement.generic.exceptions.BadRequestException;
-import com.tendwa.learning.ticketmanagement.generic.exceptions.ResourceNotFoundException;
-import com.tendwa.learning.ticketmanagement.generic.exceptions.TicketInvalidException;
+import com.tendwa.learning.ticketmanagement.generic.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,6 +48,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorDto> handleBadRequestException(BadRequestException ex) {
         ErrorDto error = new ErrorDto("BAD_REQUEST", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
@@ -57,12 +58,44 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorDto> handleBadCredentialsException(BadCredentialsException e) {
+        var error = new ErrorDto("BAD_REQUEST", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(DuplicateUserException.class)
+    public ResponseEntity<ErrorDto> handleDuplicateUserException(DuplicateUserException ex) {
+        var error = new ErrorDto("FORBIDDEN", ex.getMessage());
+        return ResponseEntity.internalServerError().body(error);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        var error = new ErrorDto("NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(CartException.class)
+    public ResponseEntity<ErrorDto> handleCartException(CartException ex) {
+        var error = new ErrorDto("NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<ErrorDto> handlePaymentException(PaymentException ex) {
+        var error = new ErrorDto("INTERNAL_SERVER_ERROR", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDto> handleException(Exception ex) {
+        ex.printStackTrace();
         ErrorDto error = new ErrorDto("INTERNAL_SERVER_ERROR", ex.getMessage());
         return ResponseEntity.internalServerError().body(error);
     }
+
+
 
 
 

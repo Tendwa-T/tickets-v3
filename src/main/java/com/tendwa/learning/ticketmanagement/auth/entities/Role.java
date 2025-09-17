@@ -1,5 +1,6 @@
 package com.tendwa.learning.ticketmanagement.auth.entities;
 
+import com.tendwa.learning.ticketmanagement.generic.enums.RoleEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,8 +27,9 @@ public class Role {
     @NotNull
     @ColumnDefault("'ATTENDEE'")
     @Lob
+    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
-    private String name;
+    private RoleEnum name;
 
     @OneToMany(mappedBy = "role")
     private Set<UserRole> userRoles = new LinkedHashSet<>();

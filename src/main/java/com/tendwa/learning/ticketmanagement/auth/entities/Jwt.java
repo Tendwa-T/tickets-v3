@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 public class Jwt {
     private final Claims claims;
@@ -20,7 +21,12 @@ public class Jwt {
 
     public Long getUserId() {return Long.valueOf(claims.getSubject());}
 
-    public RoleEnum getRole() {return RoleEnum.valueOf(claims.get("role", String.class));}
+    public List<RoleEnum> getRoles() {
+        List<String> roles = claims.get("role", List.class);
+        return roles.stream()
+                .map(RoleEnum::valueOf)  // convert each string to RoleEnum
+                .toList();
+    }
 
     public String toString() {return Jwts.builder().claims(claims).signWith(secretKey).compact();}
 

@@ -1,6 +1,6 @@
 package com.tendwa.learning.ticketmanagement.auth.filters;
 
-import com.tendwa.learning.ticketmanagement.auth.services.JwtService;
+import com.tendwa.learning.ticketmanagement.auth.services.impl.JwtServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
+    private final JwtServiceImpl jwtServiceImpl;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var authHeader = request.getHeader("Authorization");
@@ -29,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         var token = authHeader.replace("Bearer ", "");
-        var jwt = jwtService.parseToken(token);
+        var jwt = jwtServiceImpl.parseToken(token);
         if(jwt == null || jwt.isExpired()) {
             filterChain.doFilter(request, response);
             return;
@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         var authentication = new UsernamePasswordAuthenticationToken(
                 jwt.getUserId(),
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + jwt.getRole()))
+                List.of(new SimpleGrantedAuthority("ROLE_" + jwt.getRoles()))
         );
 
         authentication.setDetails(
