@@ -50,7 +50,7 @@ It provides event organizers with tools to manage events, venues, and tickets wh
 git clone https://github.com/Tendwa-T/tickets-v3.git
 
 # Navigate into project
-cd ticketing-system
+cd tickets-v3
 
 # Build the project
 mvn clean install
